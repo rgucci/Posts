@@ -10,4 +10,5 @@ import java.util.List;
  */
 public interface Service {
     public List<FeedItem> getPosts(Category category, int page);
+    public void asyncGetPosts(Category category, int page, ServiceListener listener);
 }

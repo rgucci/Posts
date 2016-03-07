@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import russell.me.posts.api.DummyService;
 import russell.me.posts.api.Service;
 import russell.me.posts.api.ServiceFactory;
+import russell.me.posts.api.ServiceListener;
 import russell.me.posts.model.Category;
 import russell.me.posts.model.FeedItem;
 
@@ -13,8 +15,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<FeedItem> listFeedItems;
     private RecyclerView recyclerViewPosts;
+    private FeedItemRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,19 +27,36 @@ public class MainActivity extends AppCompatActivity {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewPosts.setLayoutManager(layoutManager);
 
-        final Service service = ServiceFactory.getService(this);
-        listFeedItems = service.getPosts(Category.Hot, 1);
+//        final Service service = ServiceFactory.getService(this);
+//        listFeedItems = service.getPosts(Category.Hot, 1);
 
-        final FeedItemRecyclerAdapter adapter = new FeedItemRecyclerAdapter(this, listFeedItems);
-        recyclerViewPosts.setAdapter(adapter);
+        new DummyService.GetFeedItemsTask(this, Category.Hot, 1, new ServiceListener() {
+            @Override
+            public void beforeServiceCall() {
+
+            }
+
+            @Override
+            public void afterServiceCall(final List<FeedItem> feedItems) {
+                adapter = new FeedItemRecyclerAdapter(MainActivity.this, feedItems);
+                recyclerViewPosts.setAdapter(adapter);
+            }
+        }).execute();
 
         recyclerViewPosts.addOnScrollListener(new EndlessRecyclerScrollListener(layoutManager) {
             @Override
             public void onLoadMore(final int current_page) {
-                final List<FeedItem> feedItems = service.getPosts(Category.Hot, current_page);
-                if (feedItems.size() > 0) {
-                    adapter.addFeedItems(feedItems);
-                }
+                new DummyService.GetFeedItemsTask(MainActivity.this, Category.Hot, current_page, new ServiceListener() {
+                    @Override
+                    public void beforeServiceCall() {
+
+                    }
+
+                    @Override
+                    public void afterServiceCall(final List<FeedItem> feedItems) {
+                        adapter.addFeedItems(feedItems);
+                    }
+                }).execute();
             }
         });
     }

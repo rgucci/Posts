@@ -1,6 +1,9 @@
 package russell.me.posts.api;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.v4.os.AsyncTaskCompat;
 import android.util.Log;
 import com.google.gson.Gson;
 import russell.me.posts.R;
@@ -61,5 +64,46 @@ public class DummyService implements Service {
             list.add(feedItem);
         }
         return list;
+    }
+
+    @Override
+    public void asyncGetPosts(final Category category, final int page, @NonNull final ServiceListener listener) {
+        listener.beforeServiceCall();
+
+
+    }
+
+    public static class GetFeedItemsTask extends AsyncTask<Void, Void, List<FeedItem>> {
+
+        private final Category category;
+        private final int page;
+        private final Service service;
+        private final ServiceListener listener;
+
+        public GetFeedItemsTask(final Context context, final Category category, final int page, final ServiceListener listener) {
+            this.category = category;
+            this.page = page;
+            this.service = ServiceFactory.getService(context);
+            this.listener = listener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (listener != null) {
+                listener.beforeServiceCall();
+            }
+        }
+
+        @Override
+        protected List<FeedItem> doInBackground(final Void... params) {
+            return service.getPosts(category, page);
+        }
+
+        @Override
+        protected void onPostExecute(final List<FeedItem> feedItems) {
+            super.onPostExecute(feedItems);
+            listener.afterServiceCall(feedItems);
+        }
     }
 }
