@@ -2,6 +2,7 @@ package russell.me.posts;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class FeedItemRecyclerAdapter extends RecyclerView.Adapter<FeedItemRecycl
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+        Log.d("Adapter", "binding: " + position);
         final FeedItem feedItem = feedItems.get(position);
         holder.captionTextView.setText(feedItem.getCaption());
         Glide.with(context).load(feedItem.getImageUrl())

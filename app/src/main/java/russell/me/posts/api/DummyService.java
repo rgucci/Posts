@@ -1,6 +1,7 @@
 package russell.me.posts.api;
 
 import android.content.Context;
+import android.util.Log;
 import com.google.gson.Gson;
 import russell.me.posts.R;
 import russell.me.posts.json.Results;
@@ -40,13 +41,14 @@ public class DummyService implements Service {
 
     @Override
     public List<FeedItem> getPosts(final Category category, final int page) {
+        Log.d("DummyService", "getPosts:" + page);
         final List<FeedItem> list = new ArrayList<>();
 
         if (page > pages.length) {
             return list;
         }
 
-        InputStream is = context.getResources().openRawResource(pages[page]);
+        InputStream is = context.getResources().openRawResource(pages[page-1]);
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         Results results = gson.fromJson(br, Results.class);

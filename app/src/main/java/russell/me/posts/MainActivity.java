@@ -1,10 +1,9 @@
 package russell.me.posts;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import russell.me.posts.api.Service;
 import russell.me.posts.api.ServiceFactory;
 import russell.me.posts.model.Category;
@@ -23,14 +22,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerViewPosts = (RecyclerView) findViewById(R.id.recylcerViewPosts);
-        recyclerViewPosts.setLayoutManager(new LinearLayoutManager(this));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerViewPosts.setLayoutManager(layoutManager);
 
         final Service service = ServiceFactory.getService(this);
-        listFeedItems = service.getPosts(Category.Hot, 0);
+        listFeedItems = service.getPosts(Category.Hot, 1);
 
         final FeedItemRecyclerAdapter adapter = new FeedItemRecyclerAdapter(this, listFeedItems);
         recyclerViewPosts.setAdapter(adapter);
 
-        adapter.addFeedItems(service.getPosts(Category.Hot, 1));
+        recyclerViewPosts.addOnScrollListener(new EndlessRecyclerScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(final int current_page) {
+                final List<FeedItem> feedItems = service.getPosts(Category.Hot, current_page);
+                if (feedItems.size() > 0) {
+                    adapter.addFeedItems(feedItems);
+                }
+            }
+        });
     }
 }
